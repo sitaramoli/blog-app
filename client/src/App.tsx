@@ -6,6 +6,7 @@ import Dashboard from "./pages/Dashboard.tsx";
 import SignUp from "./pages/SignUp.tsx";
 import SignIn from "./pages/SignIn.tsx";
 import Header from "./components/Header.tsx";
+import AppFooter from "./components/Footer.tsx";
 
 function App() {
 
@@ -20,6 +21,7 @@ function App() {
         <Route path='/sign-up' element={<SignUp/>}/>
         <Route path='/sign-in' element={<SignIn/>}/>
       </Routes>
+      <AppFooter/>
     </BrowserRouter>
   )
 }
