@@ -1,11 +1,13 @@
 import {Link, useNavigate} from "react-router-dom";
-import React, {useReducer, useState} from "react";
+import React, {useReducer} from "react";
 import {Alert, Button, Label, Spinner, TextInput} from "flowbite-react";
 import axios from "axios";
+import {useDispatch, useSelector} from "react-redux";
+import {signInStart, signInSuccess, signInFailure} from "../redux/user/userSlice.ts";
+import {RootState} from "../store.ts";
 
 enum FormActionType {
   UPDATE_FIELD = "UPDATE_FIELD",
-  UPDATE_ERROR = "UPDATE_ERROR",
 }
 
 interface FormAction {
@@ -18,16 +20,13 @@ interface FormState {
   formData: {
     email: string;
     password: string;
-  },
-  errorMessage: string,
+  }
 }
 
 const reducer = (state: FormState, action: FormAction) => {
   switch (action.type) {
     case FormActionType.UPDATE_FIELD:
       return {...state, formData: {...state.formData, [action.field]: action.value.trim()}};
-    case FormActionType.UPDATE_ERROR:
-      return {...state, errorMessage: action.value}
     default:
       return state;
   }
@@ -39,37 +38,36 @@ const SignIn: React.FC = () => {
     formData: {
       email: "",
       password: "",
-    },
-    errorMessage: "",
+    }
   }
 
+  const dispatch = useDispatch();
+  const {loading, error: errorMessage} = useSelector((state: RootState) => state.user)
   const navigate = useNavigate();
-  const [state, dispatch] = useReducer(reducer, initialState)
-  const [loading, setLoading] = useState<boolean>(false);
-  const {formData, errorMessage} = state;
+  const [state, formDispatch] = useReducer(reducer, initialState)
+  const {formData} = state;
 
   const handleInputChange = (e: React.FormEvent<HTMLInputElement>): void => {
     const {id, value} = e.currentTarget;
-    dispatch({type: FormActionType.UPDATE_FIELD, field: id, value: value})
+    formDispatch({type: FormActionType.UPDATE_FIELD, field: id, value: value})
   }
 
   const handleFormSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
 
-    if (!formData.email || !formData.password)
-      return dispatch({type: FormActionType.UPDATE_ERROR, field: 'error', value: 'All fields are required.'});
+    if (!formData.email || !formData.password) {
+      return dispatch(signInFailure('All fields are required.'))
+    }
 
-    setLoading(true);
-    dispatch({type: FormActionType.UPDATE_ERROR, field: 'error', value: ''});
+    dispatch(signInStart())
 
     await axios.post('/api/auth/signin', state.formData)
-      .then(() => {
-        navigate('/home')
+      .then((data) => {
+        dispatch(signInSuccess(data.data))
+        navigate('/')
       })
       .catch((error) => {
-        dispatch({type: FormActionType.UPDATE_ERROR, field: 'error', value: error.response.data.message});
-      }).finally(() => {
-        setLoading(false);
+        dispatch(signInFailure(error.response.data.message))
       })
   }
 
