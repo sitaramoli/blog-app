@@ -1,12 +1,7 @@
 import {createSlice} from "@reduxjs/toolkit";
 
-interface UserSlice {
-  currentUser?: string;
-  loading: boolean;
-  error?: string;
-}
 
-const initialState: UserSlice = {
+const initialState = {
   currentUser: "",
   loading: false,
   error: ""
