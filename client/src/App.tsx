@@ -7,6 +7,7 @@ import SignUp from "./pages/SignUp.tsx";
 import SignIn from "./pages/SignIn.tsx";
 import Header from "./components/Header.tsx";
 import AppFooter from "./components/Footer.tsx";
+import PrivateRoute from "./components/PrivateRoute.tsx";
 
 function App() {
 
@@ -17,7 +18,9 @@ function App() {
         <Route path='/' element={<Home/>}/>
         <Route path='/about' element={<About/>}/>
         <Route path='/projects' element={<Projects/>}/>
-        <Route path='/dashboard' element={<Dashboard/>}/>
+        <Route element={<PrivateRoute/>}>
+          <Route path='/dashboard' element={<Dashboard/>}/>
+        </Route>
         <Route path='/sign-up' element={<SignUp/>}/>
         <Route path='/sign-in' element={<SignIn/>}/>
       </Routes>
