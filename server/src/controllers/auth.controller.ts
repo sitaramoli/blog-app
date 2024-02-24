@@ -49,10 +49,44 @@ export const signin = async (req: Request, res: Response, next: NextFunction) =>
       .json({
         id: user._id,
         username: user.username,
-        email: user.email
+        email: user.email,
+        profilePicture: user.profilePicture
       })
 
   } catch (err) {
     next(new CustomError(err.message, StatusCodes.NOT_FOUND))
+  }
+}
+
+export const google = async (req: Request, res: Response, next: NextFunction) => {
+  const {name, email, photoUrl} = req.body;
+  try {
+    const user = await User.findOne({email})
+    if (user) {
+      const token = jwt.sign({id: user._id}, process.env.JWT_SECRET_KEY);
+      return res.status(StatusCodes.OK).cookie("token", token, {httpOnly: true})
+        .json({
+          id: user._id,
+          username: user.username,
+          email: user.email,
+          profilePicture: user.profilePicture
+        });
+    } else {
+      const username = name.toLowerCase().split(" ").join("") + Math.random().toString(9).slice(-4);
+      const password = Math.random().toString(36).slice(-8) + Math.random().toString(36).slice(-8);
+      const hashPassword = bcryptjs.hashSync(password, 10)
+      const newUser = new User({username, email, password: hashPassword, profilePicture: photoUrl})
+      await newUser.save()
+      const token = jwt.sign({id: newUser._id}, process.env.JWT_SECRET_KEY);
+      return res.status(StatusCodes.OK).cookie("token", token, {httpOnly: true})
+        .json({
+          id: newUser._id,
+          username: newUser.username,
+          email: newUser.email,
+          profilePicture: photoUrl
+        });
+    }
+  } catch (err) {
+    next(err);
   }
 }

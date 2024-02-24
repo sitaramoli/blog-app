@@ -2,6 +2,7 @@ import {Link, useNavigate} from "react-router-dom";
 import React, {useReducer, useState} from "react";
 import {Alert, Button, Label, Spinner, TextInput} from "flowbite-react";
 import axios from "axios";
+import OAuth from "../components/OAuth.tsx";
 
 enum FormActionType {
   UPDATE_FIELD = "UPDATE_FIELD",
@@ -114,6 +115,7 @@ const SignUp: React.FC = () => {
                 </> : 'Sign Up'
               }
             </Button>
+            <OAuth/>
           </form>
           <div className='flex gap-2 text-sm mt-5'>
             <span>Already have an Account?</span>
